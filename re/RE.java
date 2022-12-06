@@ -7,21 +7,22 @@ import fa.nfa.NFAState;
 
 public class RE implements REInterface{
 
-  private NFA nfa;
   private String input ;
 
   private int name;
 
   public RE(String str){
-      this.input = str;
-      this.name = 1;
+    this.input = str;
+    this.name = 1;
   }
 
   @Override
   public NFA getNFA() {
-      NFA nfa = regex();
-      return nfa;
+    NFA nfa = regex();
+    return nfa;
   }
+
+  /* REGEX TERM TYPES */
 
   private NFA regex() {
     NFA nfaTerm = term();
@@ -36,6 +37,42 @@ public class RE implements REInterface{
     }
   }
 
+  private NFA term() {
+    NFA factorNFA = new NFA();
+
+    while (more() && peek() != ')' && peek() != '|') {
+      NFA nextFactor = factor();
+      factorNFA = Sequence(factorNFA,nextFactor) ;
+    }
+
+    return factorNFA;
+  }
+
+  private NFA factor() {
+    NFA baseNFA = base();
+
+    while (more() && peek() == '*') {
+      eat('*') ;
+      baseNFA = Repetition(baseNFA) ;
+    }
+
+    return baseNFA;
+  }
+
+  private NFA base() {
+    switch (peek()) {
+      case '(':
+        eat('(') ;
+        NFA r = regex() ;  
+        eat(')') ;
+        return r ;
+      default: 
+        return Primitive(next());
+    }
+  }
+
+  /* REGEX SUBCLASSES */
+
   private NFA union(NFA first, NFA second) {
     NFA newNFA = new NFA();
     newNFA.addStartState(Integer.toString(this.name));
@@ -47,16 +84,6 @@ public class RE implements REInterface{
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
     return newNFA;
-  }
-
-  private NFA term() {
-    NFA factorNFA = new NFA();
-
-    while (more() && peek() != ')' && peek() != '|') {
-      NFA nextFactor = factor();
-      factorNFA = Sequence(factorNFA,nextFactor) ;
-    }
-    return factorNFA;
   }
 
   private NFA Sequence(NFA first, NFA second) {
@@ -72,34 +99,12 @@ public class RE implements REInterface{
     return newNFA;
   }
 
-  private NFA factor() {
-    NFA baseNFA = base();
-
-    while (more() && peek() == '*') {
-      eat('*') ;
-      baseNFA = Repetition(baseNFA) ;
-    }
-    return baseNFA;
-  }
-
   public NFA Repetition(NFA internal) {
     for(State state: internal.getFinalStates()) {
       internal.addTransition(state.getName(), internal.getABC().iterator().next(), state.getName());
     }
     return internal;
   }
-
-  private NFA base() {
-    switch (peek()) {
-      case '(':
-        eat('(') ;
-        NFA r = regex() ;  
-        eat(')') ;
-      return r ;
-      default: return Primitive(next());
-    }
-  }
-
 
   private NFA Primitive(char next) {
     NFA newNFA = new NFA();
@@ -111,16 +116,18 @@ public class RE implements REInterface{
     return newNFA;
   }
 
+  /* DECENT PARSING INTERNALS */
+  
   private char peek() {
-        return input.charAt(0) ;
-      }
+    return input.charAt(0) ;
+  }
     
   private void eat(char c) {
-    if (peek() == c)
-      this.input = this.input.substring(1) ;
-    else
-      throw new 
-        RuntimeException("Expected: " + c + "; got: " + peek()) ;
+    if (peek() == c) {
+      this.input = this.input.substring(1);
+    } else {
+      throw new RuntimeException("Expected: " + c + "; got: " + peek()) ;
+    }
   }
   
   private char next() {
