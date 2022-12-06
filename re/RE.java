@@ -44,18 +44,18 @@ public class RE implements REInterface{
   }
 
   private NFA term() {
-    NFA factorNFA = new NFA();
+    NFA factorNFA = factor();
 
     while (more() && peek() != ')' && peek() != '|') {
       NFA nextFactor = factor();
-      factorNFA = Sequence(factorNFA,nextFactor) ;
+      factorNFA = sequence(factorNFA,nextFactor) ;
     }
 
     return factorNFA;
   }
 
   private NFA factor() {
-    NFA baseNFA = new NFA();
+    NFA baseNFA;
 
     if(!baseRepeats()){
       baseNFA = base();
@@ -98,7 +98,7 @@ public class RE implements REInterface{
     return newNFA;
   }
 
-  private NFA Sequence(NFA first, NFA second) {
+  private NFA sequence(NFA first, NFA second) {
     NFA newNFA = new NFA();
 
     newNFA.addNFAStates(first.getStates());
@@ -119,14 +119,16 @@ public class RE implements REInterface{
   }
 
   private NFA primitive(char next) {
+    NFA newNFA = new NFA();
     if((!this.willRepeat && !more()) || (this.willRepeat && !moreRepeat())){
       this.ending = true;
     }
-    NFA newNFA = new NFA();
     if(!this.started){
       newNFA.addStartState(Integer.toString(this.name));
       this.name++;
       this.started = true;
+    }else{
+      newNFA.addState(Integer.toString(this.name-1));
     }
     if(this.ending){
       newNFA.addFinalState(Integer.toString(this.name));
@@ -142,7 +144,7 @@ public class RE implements REInterface{
       newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
     }
     
-      return newNFA;
+    return newNFA;
   }
 
   /* DECENT PARSING INTERNALS */
