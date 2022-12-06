@@ -53,11 +53,15 @@ public class RE implements REInterface{
   }
 
   private NFA factor() {
-    NFA baseNFA = base();
+    NFA baseNFA = new NFA();
 
-    while (more() && peek() == '*') {
-      eat('*') ;
-      baseNFA = Repetition(baseNFA) ;
+    if(!baseRepeats()){
+      baseNFA = base();
+    }else{
+      baseNFA = Repetition(baseNFA);
+      while(more() && peek()=='*'){
+        eat('*');
+      }
     }
 
     return baseNFA;
@@ -154,5 +158,29 @@ public class RE implements REInterface{
   private boolean more() {
     return input.length() > 0 ;
   }
-    
+
+  /* OTHER HELPERS */
+  private boolean baseRepeats(){
+    boolean rtVal = false;
+    String inputCopy = this.input;
+    int index = 0;
+
+    switch(inputCopy.charAt(index)){
+      case '(':
+        index = 1;
+        while(inputCopy.charAt(index)!=')'){
+          index++;
+        }
+        index++;
+        if(inputCopy.charAt(index)=='*'){
+          rtVal = true;
+        }
+      default:
+        if(inputCopy.charAt(index+1)=='*'){
+          rtVal = true;
+        }
+    }
+
+    return rtVal;
+  }
 }
