@@ -4,6 +4,7 @@ import fa.dfa.DFA;
 import fa.nfa.NFA;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import fa.State;
 import fa.nfa.NFAState;
@@ -91,11 +92,34 @@ public class RE implements REInterface{
 
   private NFA union(NFA first, NFA second) {
     NFA newNFA = new NFA();
-    newNFA.addStartState(Integer.toString(this.name));
-    this.name = this.name + 1;
+    Set<NFAState> firstStates = new HashSet<NFAState>();
+    Set<NFAState> secondStates = new HashSet<NFAState>();
 
-    newNFA.addNFAStates(first.getStates());
-    newNFA.addNFAStates(second.getStates());
+    newNFA.addStartState(Integer.toString(this.name));
+    this.name++;
+
+    for(State s : first.getStates()){
+      NFAState ns = (NFAState)s;
+      firstStates.add(ns);
+    }
+    for(State s : second.getStates()){
+      NFAState ns = (NFAState)s;
+      secondStates.add(ns);
+    }
+    for(NFAState s : firstStates){
+      if(s.isFinal()){
+        newNFA.addFinalState(s.getName());
+      }else{
+        newNFA.addState(s.getName());
+      }
+    }
+    for(NFAState s : secondStates){
+      if(s.isFinal()){
+        newNFA.addFinalState(s.getName());
+      }else{
+        newNFA.addState(s.getName());
+      }
+    }
     
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
