@@ -111,10 +111,14 @@ public class RE implements REInterface{
   }
 
   private NFA Primitive(char next) {
+    if(!more()){
+      this.ending = true;
+    }
     NFA newNFA = new NFA();
     if(!this.started){
       newNFA.addStartState(Integer.toString(this.name));
       this.name++;
+      this.started = true;
     }
     if(this.ending){
       newNFA.addFinalState(Integer.toString(this.name));
