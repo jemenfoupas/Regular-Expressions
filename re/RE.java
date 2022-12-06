@@ -130,13 +130,33 @@ public class RE implements REInterface{
     NFA newNFA = new NFA();
     boolean hasState = false;
     HashSet<NFAState> firstStates = new HashSet<NFAState>();
+    HashSet<NFAState> secondStates = new HashSet<NFAState>();
 
     for(State s : first.getStates()){
       NFAState ns = (NFAState)s;
       firstStates.add(ns);
     }
+    for(State s : second.getStates()){
+      NFAState ns = (NFAState)s;
+      secondStates.add(ns);
+    }
 
-    newNFA.addNFAStates(first.getStates());
+    for(NFAState s : firstStates){
+      if(s.getName().equals(first.getStartState().getName())){
+        newNFA.addStartState(s.getName());
+      }else if(s.isFinal()){
+        newNFA.addFinalState(s.getName());
+      }else{
+        newNFA.addState(s.getName());
+      }
+    }
+    for(char c : first.getABC()){
+      for(NFAState s : firstStates){
+        for(State state : first.getToState(s,c)){
+          newNFA.addTransition(s.getName(), c, state.getName());
+        }
+      }
+    }
     for(State s : second.getStates()){
       hasState = false;
       for(State nState : newNFA.getStates()){
@@ -153,7 +173,7 @@ public class RE implements REInterface{
       }
     }
     for(char c : second.getABC()){
-      for(NFAState s : firstStates){
+      for(NFAState s : secondStates){
         for(State state : second.getToState(s, c)){
           newNFA.addTransition(s.getName(), c, state.getName());
         }
@@ -240,8 +260,10 @@ public class RE implements REInterface{
           rtVal = true;
         }
       default:
-        if(inputCopy.charAt(index+1)=='*'){
-          rtVal = true;
+        if((index+1)<inputCopy.length()){
+          if(inputCopy.charAt(index+1)=='*'){
+            rtVal = true;
+          }
         }
     }
 
