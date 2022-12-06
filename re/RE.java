@@ -2,6 +2,9 @@ package re;
 
 import fa.dfa.DFA;
 import fa.nfa.NFA;
+
+import java.util.HashSet;
+
 import fa.State;
 import fa.nfa.NFAState;
 
@@ -100,14 +103,38 @@ public class RE implements REInterface{
 
   private NFA sequence(NFA first, NFA second) {
     NFA newNFA = new NFA();
+    boolean hasState = false;
+    HashSet<NFAState> firstStates = new HashSet<NFAState>();
+
+    for(State s : first.getStates()){
+      NFAState ns = (NFAState)s;
+      firstStates.add(ns);
+    }
 
     newNFA.addNFAStates(first.getStates());
-    newNFA.addNFAStates(second.getStates());
-
-    for(State state: first.getFinalStates()) {
-      // state.setNonFinal();
-      newNFA.addTransition(state.getName(), 'e', second.getStartState().getName());
+    for(State s : second.getStates()){
+      hasState = false;
+      for(State nState : newNFA.getStates()){
+        if(s.getName().equals(nState.getName())){
+          hasState = true;
+        }
+      }
+      if(!hasState){
+        if(this.ending){
+          newNFA.addFinalState(s.getName());
+        }else{
+          newNFA.addState(s.getName());
+        }
+      }
     }
+    for(char c : second.getABC()){
+      for(NFAState s : firstStates){
+        for(State state : second.getToState(s, c)){
+          newNFA.addTransition(s.getName(), c, state.getName());
+        }
+      }
+    }
+
     return newNFA;
   }
 
