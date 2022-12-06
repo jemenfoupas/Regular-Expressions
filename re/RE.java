@@ -10,10 +10,14 @@ public class RE implements REInterface{
   private String input ;
 
   private int name;
+  private boolean started;
+  private boolean final;
 
   public RE(String str){
     this.input = str;
-    this.name = 1;
+    this.name = 0;
+    this.started = false;
+    this.ending = false;
   }
 
   @Override
@@ -71,7 +75,7 @@ public class RE implements REInterface{
     }
   }
 
-  /* REGEX SUBCLASSES */
+  /* REGEX SUBBUILDERS */
 
   private NFA union(NFA first, NFA second) {
     NFA newNFA = new NFA();
@@ -108,10 +112,17 @@ public class RE implements REInterface{
 
   private NFA Primitive(char next) {
     NFA newNFA = new NFA();
-    newNFA.addStartState(Integer.toString(this.name));
-    this.name += 1;
-    newNFA.addFinalState(Integer.toString(this.name));
-    this.name += 1;
+    if(!this.started){
+      newNFA.addStartState(Integer.toString(this.name));
+      this.name++;
+    }
+    if(this.ending){
+      newNFA.addFinalState(Integer.toString(this.name));
+      this.name++;
+    }else{
+      newNFA.addState(Integer.toString(this.name));
+      this.name++;
+    }
     newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
     return newNFA;
   }
