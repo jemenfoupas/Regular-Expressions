@@ -12,12 +12,14 @@ public class RE implements REInterface{
   private int name;
   private boolean started;
   private boolean ending;
+  private boolean willRepeat;
 
   public RE(String str){
     this.input = str;
     this.name = 0;
     this.started = false;
     this.ending = false;
+    this.willRepeat = false;
   }
 
   @Override
@@ -58,10 +60,12 @@ public class RE implements REInterface{
     if(!baseRepeats()){
       baseNFA = base();
     }else{
-      baseNFA = Repetition(baseNFA);
+      this.willRepeat = true;
+      baseNFA = base();
       while(more() && peek()=='*'){
         eat('*');
       }
+      this.willRepeat = false;
     }
 
     return baseNFA;
@@ -75,7 +79,7 @@ public class RE implements REInterface{
         eat(')') ;
         return r ;
       default: 
-        return Primitive(next());
+        return primitive(next());
     }
   }
 
@@ -114,7 +118,7 @@ public class RE implements REInterface{
     return internal;
   }
 
-  private NFA Primitive(char next) {
+  private NFA primitive(char next) {
     if(!more()){
       this.ending = true;
     }
