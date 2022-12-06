@@ -11,7 +11,7 @@ public class RE implements REInterface{
 
   private int name;
   private boolean started;
-  private boolean final;
+  private boolean ending;
 
   public RE(String str){
     this.input = str;
