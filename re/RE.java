@@ -119,7 +119,7 @@ public class RE implements REInterface{
   }
 
   private NFA primitive(char next) {
-    if(!more()){
+    if((!this.willRepeat && !more()) || (this.willRepeat && !moreRepeat())){
       this.ending = true;
     }
     NFA newNFA = new NFA();
@@ -135,8 +135,14 @@ public class RE implements REInterface{
       newNFA.addState(Integer.toString(this.name));
       this.name++;
     }
-    newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
-    return newNFA;
+    if(this.willRepeat){
+      newNFA.addTransition(Integer.toString(this.name - 2), 'e', Integer.toString(this.name - 1));
+      newNFA.addTransition(Integer.toString(this.name - 1), next, Integer.toString(this.name - 1));
+    }else{
+      newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
+    }
+    
+      return newNFA;
   }
 
   /* DECENT PARSING INTERNALS */
@@ -183,6 +189,21 @@ public class RE implements REInterface{
         if(inputCopy.charAt(index+1)=='*'){
           rtVal = true;
         }
+    }
+
+    return rtVal;
+  }
+
+  private boolean moreRepeat(){
+    boolean rtVal = false;
+    String inputCopy = this.input;
+    int index = 0;
+
+    while(index<inputCopy.length() && inputCopy.charAt(index)=='*'){
+      index++;
+    }
+    if(index!=inputCopy.length()){
+      rtVal = true;
     }
 
     return rtVal;
