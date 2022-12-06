@@ -38,6 +38,7 @@ public class RE implements REInterface{
 
     if (more() && peek() == '|') {
       eat ('|') ;
+      this.started = false;
       NFA regexNFA = regex();
       NFA union = union(nfaTerm, regexNFA) ;
       return union;
