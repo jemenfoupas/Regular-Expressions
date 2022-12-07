@@ -161,6 +161,11 @@ public class RE implements REInterface{
         }
       }
     }
+    for(NFAState s : firstStates){
+      for(State state : first.getToState(s,'e')){
+        newNFA.addTransition(s.getName(), 'e', state.getName());
+      }
+    }
     for(State s : second.getStates()){
       hasState = false;
       for(State nState : newNFA.getStates()){
@@ -181,6 +186,11 @@ public class RE implements REInterface{
         for(State state : second.getToState(s, c)){
           newNFA.addTransition(s.getName(), c, state.getName());
         }
+      }
+    }
+    for(NFAState s : secondStates){
+      for(State state : second.getToState(s, 'e')){
+        newNFA.addTransition(s.getName(), 'e', state.getName());
       }
     }
 
