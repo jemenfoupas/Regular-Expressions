@@ -200,7 +200,8 @@ public class RE implements REInterface{
       this.name++;
       this.started = true;
     }else{
-      newNFA.addState(Integer.toString(this.name-1));
+      newNFA.addState(Integer.toString(this.name));
+      this.name++;
     }
     if(this.ending){
       newNFA.addFinalState(Integer.toString(this.name));
