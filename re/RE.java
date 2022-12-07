@@ -17,6 +17,7 @@ public class RE implements REInterface{
   private boolean started;
   private boolean ending;
   private boolean willRepeat;
+  private boolean inSequence;
 
   public RE(String str){
     this.input = str;
@@ -24,6 +25,7 @@ public class RE implements REInterface{
     this.started = false;
     this.ending = false;
     this.willRepeat = false;
+    this.inSequence = false;
   }
 
   @Override
@@ -52,7 +54,9 @@ public class RE implements REInterface{
     NFA factorNFA = factor();
 
     while (more() && peek() != ')' && peek() != '|') {
+      this.inSequence = true;
       NFA nextFactor = factor();
+      this.inSequence = false;
       factorNFA = sequence(factorNFA,nextFactor) ;
     }
 
@@ -195,20 +199,31 @@ public class RE implements REInterface{
     if((!this.willRepeat && !more()) || (this.willRepeat && !moreRepeat())){
       this.ending = true;
     }
-    if(!this.started){
-      newNFA.addStartState(Integer.toString(this.name));
-      this.name++;
-      this.started = true;
+    if(!this.inSequence){
+      if(!this.started){
+        newNFA.addStartState(Integer.toString(this.name));
+        this.name++;
+        this.started = true;
+      }else{
+        newNFA.addState(Integer.toString(this.name));
+        this.name++;
+      }
+      if(this.ending){
+        newNFA.addFinalState(Integer.toString(this.name));
+        this.name++;
+      }else{
+        newNFA.addState(Integer.toString(this.name));
+        this.name++;
+      }
     }else{
-      newNFA.addState(Integer.toString(this.name));
-      this.name++;
-    }
-    if(this.ending){
-      newNFA.addFinalState(Integer.toString(this.name));
-      this.name++;
-    }else{
-      newNFA.addState(Integer.toString(this.name));
-      this.name++;
+      newNFA.addState(Integer.toString(this.name-1));
+      if(this.ending){
+        newNFA.addFinalState(Integer.toString(this.name));
+        this.name++;
+      }else{
+        newNFA.addState(Integer.toString(this.name));
+        this.name++;
+      }
     }
     if(this.willRepeat){
       newNFA.addTransition(Integer.toString(this.name - 2), 'e', Integer.toString(this.name - 1));
