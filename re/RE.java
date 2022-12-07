@@ -92,37 +92,17 @@ public class RE implements REInterface{
 
   private NFA union(NFA first, NFA second) {
     NFA newNFA = new NFA();
-    Set<NFAState> firstStates = new HashSet<NFAState>();
-    Set<NFAState> secondStates = new HashSet<NFAState>();
-
-    newNFA.addStartState(Integer.toString(this.name));
-    this.name++;
-
-    for(State s : first.getStates()){
-      NFAState ns = (NFAState)s;
-      firstStates.add(ns);
-    }
-    for(State s : second.getStates()){
-      NFAState ns = (NFAState)s;
-      secondStates.add(ns);
-    }
-    for(NFAState s : firstStates){
-      if(s.isFinal()){
-        newNFA.addFinalState(s.getName());
-      }else{
-        newNFA.addState(s.getName());
-      }
-    }
-    for(NFAState s : secondStates){
-      if(s.isFinal()){
-        newNFA.addFinalState(s.getName());
-      }else{
-        newNFA.addState(s.getName());
-      }
-    }
     
+    newNFA.addStartState(Integer.toString(this.name));
+    this.name = this.name + 1;
+
+    newNFA.addNFAStates(first.getStates());
+    newNFA.addNFAStates(second.getStates());
+
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
+    newNFA.addAbc(first.getABC());
+    newNFA.addAbc(second.getABC());
     return newNFA;
   }
 
