@@ -1,0 +1,7 @@
+(a*)(b|(a*))
+b
+aaab
+a
+e
+aba
+baaa
