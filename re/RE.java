@@ -18,10 +18,12 @@ public class RE implements REInterface{
   private boolean ending;
   private boolean willRepeat;
   private boolean inSequence;
+  private int unionCount;
 
   public RE(String str){
     this.input = str;
     this.name = 0;
+    this.unionCount = 0;
     this.started = false;
     this.ending = false;
     this.willRepeat = false;
@@ -99,8 +101,8 @@ public class RE implements REInterface{
     Set<NFAState> firstStates = new HashSet<NFAState>();
     Set<NFAState> secondStates = new HashSet<NFAState>();
 
-    newNFA.addStartState(Integer.toString(this.name));
-    this.name++;
+    newNFA.addStartState(Integer.toString(-1-this.unionCount));
+    this.unionCount++;
 
     for(State s : first.getStates()){
       NFAState ns = (NFAState)s;
@@ -124,9 +126,36 @@ public class RE implements REInterface{
         newNFA.addState(s.getName());
       }
     }
+    for(char c : first.getABC()){
+      for(NFAState s : firstStates){
+        for(State state : first.getToState(s,c)){
+          newNFA.addTransition(s.getName(), c, state.getName());
+        }
+      }
+    }
+    for(NFAState s : firstStates){
+      for(State state : first.getToState(s,'e')){
+        newNFA.addTransition(s.getName(), 'e', state.getName());
+      }
+    }
+    for(char c : second.getABC()){
+      for(NFAState s : secondStates){
+        for(State state : second.getToState(s, c)){
+          newNFA.addTransition(s.getName(), c, state.getName());
+        }
+      }
+    }
+    for(NFAState s : secondStates){
+      for(State state : second.getToState(s, 'e')){
+        newNFA.addTransition(s.getName(), 'e', state.getName());
+      }
+    }
     
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
+
+    //newNFA = eCloseStart(newNFA);
+
     return newNFA;
   }
 
@@ -310,4 +339,21 @@ public class RE implements REInterface{
 
     return rtVal;
   }
+  /* 
+  private NFA eCloseStart(NFA nfa){
+    NFA newNFA = new NFA();
+    int newName = 0;
+    Set<NFAState> oldStates = new HashSet<NFAState>();
+
+    for(State s : nfa.getStates()){
+      NFAState ns = (NFAState)s;
+      oldStates.add(ns);
+    }
+
+    newNFA.addStartState(Integer.toString(newName));
+    newName++;
+
+    return newNFA;
+  }
+  */
 }
