@@ -197,14 +197,21 @@ public class RE implements REInterface{
     boolean rtVal = false;
     String inputCopy = this.input;
     int index = 0;
+    int openCount = 0;
+    int closeCount = 0;
 
     switch(inputCopy.charAt(index)){
       case '(':
         index = 1;
-        while(inputCopy.charAt(index)!=')'){
+        openCount++;
+        while(openCount!=closeCount){
+          if(inputCopy.charAt(index)=='('){
+            openCount++;
+          }else if(inputCopy.charAt(index)==')'){
+            closeCount++;
+          }
           index++;
         }
-        index++;
         if(inputCopy.charAt(index)=='*'){
           rtVal = true;
         }
