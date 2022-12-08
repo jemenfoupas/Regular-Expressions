@@ -14,6 +14,7 @@ public class RE implements REInterface{
 
   private int name;
   private boolean willRepeat;
+  private boolean isNested;
 
   public RE(String str){
     this.input = str;
@@ -77,7 +78,9 @@ public class RE implements REInterface{
       baseNFA = base();
       while(more() && peek()=='*'){
         eat('*');
+        isNested = false;
       }
+      
       this.willRepeat = false;
       //System.out.println("factor not repeat \n"+input+"\n"+baseNFA);
     }
@@ -92,6 +95,15 @@ public class RE implements REInterface{
         NFA r = regex() ;
         //System.out.println("base \n"+input+"\n"+r);  
         eat(')') ;
+
+        if(more() && peek()=='*'){
+          for(State state: r.getFinalStates()){
+            r.addTransition(state.getName(), 'e',r.getStartState().getName());
+            ((NFAState) r.getStartState()).setFinal();
+            System.out.println("base for loop \n"+r);
+          }
+        }
+
         return r ;
       default: 
         NFA nfa = primitive(next());
@@ -159,8 +171,9 @@ public class RE implements REInterface{
     this.name++;  
     ((NFAState) newNFA.getStartState()).setFinal();
 
-    //System.out.println("primitive 4 \n"+newNFA);  
-    if(this.willRepeat){
+    System.out.println("primitive 4 \n"+newNFA);
+
+    if(more() && peek()=='*'){
       newNFA.addTransition(Integer.toString(this.name - 1), next, Integer.toString(this.name - 1));
     }else{
       NFA switchNFA =  new NFA();
@@ -231,6 +244,22 @@ public class RE implements REInterface{
             rtVal = true;
           }
         }
+    }
+
+    return rtVal;
+  }
+
+
+  private boolean moreRepeat(){
+    boolean rtVal = false;
+    String inputCopy = this.input;
+    int index = 0;
+
+    while(index<inputCopy.length() && inputCopy.charAt(index)=='*'){
+      index++;
+    }
+    if(index!=inputCopy.length()){
+      rtVal = true;
     }
 
     return rtVal;
