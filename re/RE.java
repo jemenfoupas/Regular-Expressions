@@ -66,10 +66,10 @@ public class RE implements REInterface{
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
 
-    if(willRepeat ){
-      newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
-      newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
-    }
+    // if(willRepeat ){
+    //   newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
+    //   newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
+    // }
 
     
     newNFA.addAbc(first.getABC());
@@ -152,6 +152,15 @@ public class RE implements REInterface{
         NFA r = regex() ;
         System.out.println("base \n"+input+"\n"+r);  
         eat(')') ;
+
+        if(more() && peek()=='*'){
+          for(State state: r.getFinalStates()){
+            r.addTransition(state.getName(), 'e',r.getStartState().getName());
+            ((NFAState) r.getStartState()).setFinal();
+            System.out.println("base for loop \n"+r);
+          }
+        }
+
         return r ;
       default: 
         NFA nfa = primitive(next());
@@ -179,8 +188,11 @@ public class RE implements REInterface{
     this.name++;  
     ((NFAState) newNFA.getStartState()).setFinal();
 
-    System.out.println("primitive 4 \n"+newNFA);  
-    if(this.willRepeat){
+    System.out.println("primitive 4 \n"+newNFA);
+
+    if(more() && peek()=='*'){
+
+      // if(this.willRepeat){
       newNFA.addTransition(Integer.toString(this.name - 1), next, Integer.toString(this.name - 1));
     }else{
 
