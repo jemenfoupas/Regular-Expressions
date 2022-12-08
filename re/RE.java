@@ -2,6 +2,9 @@ package re;
 
 import fa.nfa.NFA;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import fa.State;
 import fa.nfa.NFAState;
 
@@ -21,6 +24,11 @@ public class RE implements REInterface{
   @Override
   public NFA getNFA() {
     NFA nfa = regex();
+    Set<Character> abSet = new HashSet<Character>();
+
+    abSet.add('a');
+    abSet.add('b');
+    nfa.addAbc(abSet);
 
     return nfa;
   }
