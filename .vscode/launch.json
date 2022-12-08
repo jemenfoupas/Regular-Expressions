@@ -15,7 +15,7 @@
             "name": "Launch REDriver",
             "request": "launch",
             "mainClass": "re.REDriver",
-            "args": ["./tests/p3tc1.txt"],
+            "args": ["./tests/p3tc2.txt"],
             "projectName": "Regular-Expressions_b53136c8"
         }
     ]

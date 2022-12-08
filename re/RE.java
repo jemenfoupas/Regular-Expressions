@@ -17,6 +17,7 @@ public class RE implements REInterface{
   private boolean started;
   private boolean ending;
   private boolean willRepeat;
+  private boolean isNested;
 
   public RE(String str){
     this.input = str;
@@ -64,8 +65,13 @@ public class RE implements REInterface{
 
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
-    newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
-    newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
+
+    if(willRepeat ){
+      newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
+      newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
+    }
+
+    
     newNFA.addAbc(first.getABC());
     newNFA.addAbc(second.getABC());
     return newNFA;
@@ -129,7 +135,9 @@ public class RE implements REInterface{
       baseNFA = base();
       while(more() && peek()=='*'){
         eat('*');
+        isNested = false;
       }
+      
       this.willRepeat = false;
       System.out.println("factor not repeat \n"+input+"\n"+baseNFA);
     }
@@ -218,14 +226,20 @@ public class RE implements REInterface{
     boolean rtVal = false;
     String inputCopy = this.input;
     int index = 0;
+    int Bracket = 0;
 
     switch(inputCopy.charAt(index)){
       case '(':
         index = 1;
-        while(inputCopy.charAt(index)!=')'){
+        Bracket--;
+        while(Bracket!=0){
+          if(inputCopy.charAt(index) =='('){
+            Bracket--;
+            isNested = true;
+          } 
+          if(inputCopy.charAt(index) ==')') Bracket++;
           index++;
         }
-        index++;
         if(inputCopy.charAt(index)=='*'){
           rtVal = true;
         }
@@ -239,6 +253,7 @@ public class RE implements REInterface{
 
     return rtVal;
   }
+
 
   private boolean moreRepeat(){
     boolean rtVal = false;
