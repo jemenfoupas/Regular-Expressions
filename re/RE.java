@@ -220,8 +220,10 @@ public class RE implements REInterface{
           }
           index++;
         }
-        if(inputCopy.charAt(index)=='*'){
-          rtVal = true;
+        if(index!=inputCopy.length()){
+          if(inputCopy.charAt(index)=='*'){
+            rtVal = true;
+          }
         }
       default:
         if((index+1)<inputCopy.length()){
