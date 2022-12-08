@@ -33,6 +33,7 @@ public class RE implements REInterface{
   @Override
   public NFA getNFA() {
     NFA nfa = regex();
+
     return nfa;
   }
 
@@ -41,28 +42,86 @@ public class RE implements REInterface{
   private NFA regex() {
     NFA nfaTerm = term();
 
+    //System.out.println("regex \n"+input+"\n"+nfaTerm);
+
     if (more() && peek() == '|') {
       eat ('|') ;
       this.started = false;
       NFA regexNFA = regex();
-      NFA union = union(nfaTerm, regexNFA) ;
-      return union;
+      nfaTerm = union(nfaTerm, regexNFA) ;
+
+      //System.out.println("regex After union \n"+input+"\n"+nfaTerm);
+      return nfaTerm;
     } else {
       return nfaTerm ;
     }
   }
 
+  private NFA union(NFA first, NFA second) {
+    NFA newNFA = new NFA();
+    
+    newNFA.addStartState(Integer.toString(this.name));
+    this.name = this.name + 1;
+
+    newNFA.addNFAStates(first.getStates());
+    newNFA.addNFAStates(second.getStates());
+
+    newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
+    newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
+    newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
+    newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
+    newNFA.addAbc(first.getABC());
+    newNFA.addAbc(second.getABC());
+    return newNFA;
+  }
+
   private NFA term() {
     NFA factorNFA = factor();
 
+    //System.out.println("term \n"+input+"\n"+factorNFA);
+    
     while (more() && peek() != ')' && peek() != '|') {
       this.inSequence = true;
       NFA nextFactor = factor();
       this.inSequence = false;
       factorNFA = sequence(factorNFA,nextFactor) ;
+      //System.out.println("term after sequence\n"+input+"\n"+factorNFA);
     }
 
     return factorNFA;
+  }
+
+  private NFA sequence(NFA first, NFA second) {
+
+    //System.out.println("sequence first \n"+first);
+    //System.out.println("sequence second \n"+second);
+
+    first.addNFAStates(second.getStates());
+    first.addAbc(second.getABC());
+    //System.out.println("sequence  before for loop \n"+first);
+
+    for(State state: first.getFinalStates()){
+      if(!isInNFA(state.getName(), second)){
+        first.addTransition(state.getName(), 'e',second.getStartState().getName());
+        ((NFAState) state).setNonFinal();
+        System.out.println("sequence for loop \n"+first);
+      }
+      
+    }
+
+    
+
+    //System.out.println("sequence first 2\n"+first);
+    //System.out.println("sequence second 2\n"+second);
+    return first;
+  }
+
+
+  private boolean isInNFA(String name,NFA nfa) {
+    for(State state : nfa.getFinalStates())
+      if(state.getName().equals(name))
+        return true;
+    return false;
   }
 
   private NFA factor() {
@@ -70,6 +129,7 @@ public class RE implements REInterface{
 
     if(!baseRepeats()){
       baseNFA = base();
+      //System.out.println("factor \n"+input+"\n"+baseNFA);
     }else{
       this.willRepeat = true;
       baseNFA = base();
@@ -77,6 +137,7 @@ public class RE implements REInterface{
         eat('*');
       }
       this.willRepeat = false;
+      //System.out.println("factor not repeat \n"+input+"\n"+baseNFA);
     }
 
     return baseNFA;
@@ -86,17 +147,20 @@ public class RE implements REInterface{
     switch (peek()) {
       case '(':
         eat('(') ;
-        NFA r = regex() ;  
+        NFA r = regex() ;
+        //System.out.println("base \n"+input+"\n"+r);  
         eat(')') ;
         return r ;
       default: 
-        return primitive(next());
+        NFA nfa = primitive(next());
+        //System.out.println("base \n"+nfa);  
+        return nfa;
     }
   }
 
   /* REGEX SUBBUILDERS */
-
-  private NFA union(NFA first, NFA second) {
+/* 
+ private NFA union(NFA first, NFA second) {
     NFA newNFA = new NFA();
     Set<NFAState> firstStates = new HashSet<NFAState>();
     Set<NFAState> secondStates = new HashSet<NFAState>();
@@ -225,7 +289,7 @@ public class RE implements REInterface{
 
     return newNFA;
   }
-
+ */
   public NFA Repetition(NFA internal) {
     for(State state: internal.getFinalStates()) {
       internal.addTransition(state.getName(), internal.getABC().iterator().next(), state.getName());
@@ -238,7 +302,13 @@ public class RE implements REInterface{
     if((!this.willRepeat && !more()) || (this.willRepeat && !moreRepeat())){
       this.ending = true;
     }
-    if(!this.inSequence){
+
+    newNFA.addStartState(Integer.toString(this.name));
+    this.name++;  
+    ((NFAState) newNFA.getStartState()).setFinal();
+
+    System.out.println("primitive 4 \n"+newNFA);  
+    /*if(!this.inSequence){
       if(!this.started){
         newNFA.addStartState(Integer.toString(this.name));
         this.name++;
@@ -264,13 +334,28 @@ public class RE implements REInterface{
         this.name++;
       }
     }
+    if(this.ending){
+      newNFA.addFinalState(Integer.toString(this.name));
+      this.name++;
+    }else{
+      newNFA.addState(Integer.toString(this.name));
+      this.name++;
+    }*/
     if(this.willRepeat){
-      newNFA.addTransition(Integer.toString(this.name - 2), 'e', Integer.toString(this.name - 1));
+      //newNFA.addTransition(Integer.toString(this.name - 2), 'e', Integer.toString(this.name - 1));
       newNFA.addTransition(Integer.toString(this.name - 1), next, Integer.toString(this.name - 1));
     }else{
-      newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
+	  //newNFA.addTransition(Integer.toString(this.name - 2), next, Integer.toString(this.name - 1));
+      NFA switchNFA =  new NFA();
+      switchNFA.addStartState(Integer.toString(this.name));
+      this.name++; 
+      switchNFA.addNFAStates(newNFA.getStates());
+
+      switchNFA.addTransition(Integer.toString(this.name - 1), next, Integer.toString(this.name - 2));
+      newNFA = switchNFA;
     }
-    
+
+    //System.out.println("primitive 5 \n"+newNFA);  
     return newNFA;
   }
 

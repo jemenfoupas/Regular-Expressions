@@ -8,15 +8,15 @@
             "type": "java",
             "name": "Launch Current File",
             "request": "launch",
-            "mainClass": "${file}",
-            "args": "./tests/p3tc1.txt"
+            "mainClass": "${file}"
         },
         {
             "type": "java",
             "name": "Launch REDriver",
             "request": "launch",
-            "mainClass": "re.REDriver"
-            
+            "mainClass": "re.REDriver",
+            "args": ["./tests/p3tc1.txt"],
+            "projectName": "Regular-Expressions_b53136c8"
         }
     ]
 }
