@@ -8,6 +8,11 @@ import java.util.Set;
 import fa.State;
 import fa.nfa.NFAState;
 
+/**
+ * Regualar expression class that can parse a regular expression and create a NFA.
+ * @author Rich Boundji
+ * @author Ethan Raygor
+ */
 public class RE implements REInterface{
 
   private String input ;
@@ -29,6 +34,10 @@ public class RE implements REInterface{
   }
 
   /* REGEX TERM TYPES */
+  /**
+   * Parses a regular expression into an NFA
+   * @return NFA resulting from regular expression
+   */
   private NFA regex() {
     NFA nfaTerm = term();
     if (more() && peek() == '|') {
@@ -41,6 +50,10 @@ public class RE implements REInterface{
     }
   }
 
+  /**
+   * Parses a term from a regular expression
+   * @return NFA resulting from term
+   */
   private NFA term() {
     NFA nfaFactor = factor();
     while (more() && peek() != ')' && peek() != '|') {
@@ -50,6 +63,10 @@ public class RE implements REInterface{
     return nfaFactor;
   }
 
+  /**
+   * Parses a factor from a term
+   * @return NFA resulting from factor
+   */
   private NFA factor() {
     NFA nfaBase = base();
     while(more() && peek()=='*'){
@@ -58,6 +75,10 @@ public class RE implements REInterface{
     return nfaBase;
   }
 
+  /**
+   * Parses a base from a factor
+   * @return NFA resulting from base
+   */ 
   private NFA base() {
     switch (peek()) {
       case '(':
@@ -81,6 +102,12 @@ public class RE implements REInterface{
 
   /* REGEX SUBBUILDERS */
 
+  /**
+   * Creates a union of two NFAs
+   * @param firstNFA NFA
+   * @param secondNFA NFA
+   * @return NFA resulting from union
+   */
   private NFA union(NFA firstNFA, NFA secondNFA) {
     NFA newNFA = new NFA();
     
@@ -99,6 +126,12 @@ public class RE implements REInterface{
     return newNFA;
   }
 
+  /**
+   * Puts two NFAs in sequence
+   * @param firstNFA NFA
+   * @param secondNFA NFA
+   * @return NFA resulting from sequence
+   */
   private NFA sequence(NFA firstNFA, NFA secondNFA) {
     firstNFA.addNFAStates(secondNFA.getStates());
     firstNFA.addAbc(secondNFA.getABC());
@@ -113,6 +146,11 @@ public class RE implements REInterface{
     return firstNFA;
   }
 
+  /**
+   * Creates a primitive NFA
+   * @param next char
+   * @return NFA resulting from primitive
+   */
   private NFA primitive(char next) {
     NFA newNFA = new NFA();
 
@@ -136,10 +174,20 @@ public class RE implements REInterface{
   }
 
   /* DECENT PARSING INTERNALS */
+
+  /**
+   * Checks what is next in input String
+   * @return char at index 0 in input
+   */
   private char peek() {
     return input.charAt(0) ;
   }
     
+  /**
+   * Eats the next character in input if it matches the parameter
+   * @param c char
+   * @exception RuntimeException if the next character does not match c
+   */
   private void eat(char c) {
     if (peek() == c) {
       this.input = this.input.substring(1);
@@ -148,17 +196,32 @@ public class RE implements REInterface{
     }
   }
   
+  /**
+   * Eats and returns whatever character is next in input
+   * @return char that was next
+   */
   private char next() {
     char c = peek() ;
     eat(c) ;
     return c ;
   }
 
+  /**
+   * Returns true if more characters in input
+   * @return boolean
+   */
   private boolean more() {
     return input.length() > 0 ;
   }
 
   /* OTHER HELPERS */
+
+  /**
+   * Returns true if state with given name exists in given NFA
+   * @param name String
+   * @param nfa NFA
+   * @return boolean
+   */
   private boolean isInNFA(String name,NFA nfa) {
     for(State state : nfa.getFinalStates())
       if(state.getName().equals(name))
