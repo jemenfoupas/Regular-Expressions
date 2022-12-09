@@ -1,2 +1,21 @@
-Sources:
+# Project 3: Regular Expressions
+* Author: Rich Boundji & Ethan Raygor
+* Class: CS361
+* Semester: Fall 2022
+## Overview
+This program can parse a regular expression that fits the given grammar and return an NFA that recognizes the regular expression.
+The given driver class demonstrates this functionality.
+## Reflection
+Our program is modeled off of the recursive descent idea that was linked in the project assignment. The regular expression parsing works very similarly to the provided examples. We had to do most of our own coding fro the subbuilders as we had to create an NFA instead of just parse the regular expression. We mostly did test driven development by running our code with the provided test cases as well as some of our own. I used vscode's java debugger to see where a problem was occurring and then make any changes that were needed.
+## Compiling and Using
+To compile:
+```
+$ javac -cp ".:./CS361FA.jar" re/REDriver.java
+```
+To run:
+```
+$ java -cp ".:./CS361FA.jar" re.REDriver [test case in correct .txt format]
+```
+## Sources used
 https://www.programcreek.com/2014/01/compile-and-run-java-in-command-line-with-external-jars/
+https://matt.might.net/articles/parsing-regex-with-recursive-descent/
