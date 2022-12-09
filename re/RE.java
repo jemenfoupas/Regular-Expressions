@@ -39,14 +39,14 @@ public class RE implements REInterface{
   private NFA regex() {
     NFA nfaTerm = term();
 
-    //System.out.println("regex \n"+input+"\n"+nfaTerm);
+    System.out.println("regex \n"+input+"\n"+nfaTerm);
 
     if (more() && peek() == '|') {
       eat ('|') ;
       NFA regexNFA = regex();
       nfaTerm = union(nfaTerm, regexNFA) ;
 
-      //System.out.println("regex After union \n"+input+"\n"+nfaTerm);
+      System.out.println("regex After union \n"+input+"\n"+nfaTerm);
       return nfaTerm;
     } else {
       return nfaTerm ;
@@ -56,12 +56,12 @@ public class RE implements REInterface{
   private NFA term() {
     NFA factorNFA = factor();
 
-    //System.out.println("term \n"+input+"\n"+factorNFA);
+    System.out.println("term \n"+input+"\n"+factorNFA);
     
     while (more() && peek() != ')' && peek() != '|') {
       NFA nextFactor = factor();
       factorNFA = sequence(factorNFA,nextFactor) ;
-      //System.out.println("term after sequence\n"+input+"\n"+factorNFA);
+      System.out.println("term after sequence\n"+input+"\n"+factorNFA);
     }
 
     return factorNFA;
@@ -72,7 +72,7 @@ public class RE implements REInterface{
 
     if(!baseRepeats()){
       baseNFA = base();
-      //System.out.println("factor \n"+input+"\n"+baseNFA);
+      System.out.println("factor \n"+input+"\n"+baseNFA);
     }else{
       this.willRepeat = true;
       baseNFA = base();
@@ -82,7 +82,7 @@ public class RE implements REInterface{
       }
       
       this.willRepeat = false;
-      //System.out.println("factor not repeat \n"+input+"\n"+baseNFA);
+      System.out.println("factor not repeat \n"+input+"\n"+baseNFA);
     }
 
     return baseNFA;
@@ -93,7 +93,7 @@ public class RE implements REInterface{
       case '(':
         eat('(') ;
         NFA r = regex() ;
-        //System.out.println("base \n"+input+"\n"+r);  
+        System.out.println("base \n"+input+"\n"+r);  
         eat(')') ;
 
         if(more() && peek()=='*'){
@@ -107,7 +107,7 @@ public class RE implements REInterface{
         return r ;
       default: 
         NFA nfa = primitive(next());
-        //System.out.println("base \n"+nfa);  
+        System.out.println("base \n"+nfa);  
         return nfa;
     }
   }
@@ -125,8 +125,7 @@ public class RE implements REInterface{
 
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', first.getStartState().getName());
     newNFA.addTransition(newNFA.getStartState().getName(), 'e', second.getStartState().getName());
-    newNFA.addTransition(first.getStartState().getName(), 'e', second.getStartState().getName());
-    newNFA.addTransition(second.getStartState().getName(), 'e', first.getStartState().getName());
+
     newNFA.addAbc(first.getABC());
     newNFA.addAbc(second.getABC());
     return newNFA;
@@ -134,26 +133,26 @@ public class RE implements REInterface{
 
   private NFA sequence(NFA first, NFA second) {
 
-    //System.out.println("sequence first \n"+first);
-    //System.out.println("sequence second \n"+second);
+    System.out.println("sequence first \n"+first);
+    System.out.println("sequence second \n"+second);
 
     first.addNFAStates(second.getStates());
     first.addAbc(second.getABC());
-    //System.out.println("sequence  before for loop \n"+first);
+    System.out.println("sequence  before for loop \n"+first);
 
     for(State state: first.getFinalStates()){
       if(!isInNFA(state.getName(), second)){
         first.addTransition(state.getName(), 'e',second.getStartState().getName());
         ((NFAState) state).setNonFinal();
-        //System.out.println("sequence for loop \n"+first);
+        System.out.println("sequence for loop \n"+first);
       }
       
     }
 
     
 
-    //System.out.println("sequence first 2\n"+first);
-    //System.out.println("sequence second 2\n"+second);
+    System.out.println("sequence first 2\n"+first);
+    System.out.println("sequence second 2\n"+second);
     return first;
   }
 
@@ -185,7 +184,7 @@ public class RE implements REInterface{
       newNFA = switchNFA;
     }
 
-    //System.out.println("primitive 5 \n"+newNFA);  
+    System.out.println("primitive 5 \n"+newNFA);  
     return newNFA;
   }
 

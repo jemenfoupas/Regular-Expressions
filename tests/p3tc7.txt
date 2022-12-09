@@ -1,0 +1,7 @@
+((ab|ac*c)(ab)*c*)|ac*
+ab
+ca
+ababccc
+bccc
+accc
+e
