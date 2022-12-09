@@ -1,0 +1,7 @@
+(a|b)*b(a|b)*|(a|b)*c(a|b)*b(a|b)*|(a|b)*b(a|b)*c(a|b)*|(a|b)*c(a|b)*b(a|b)*c(a|b)*|(a|b)*c(a|b)*c(a|b)*b(a|b)*|(a|b)*b(a|b)*c(a|b)*c(a|b)*
+abc
+acc
+bbc
+baaabcabcbca
+bccab
+cabcabc
